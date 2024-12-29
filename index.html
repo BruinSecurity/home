@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <style>
+        body {
+            background-color: #0d1117;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 20px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .terminal {
+            width: 80%;
+            max-width: 800px;
+            position: relative;
+        }
+
+        .terminal-header {
+            background: #161b22;
+            border-radius: 8px 8px 0 0;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .terminal-circles {
+            display: flex;
+            gap: 8px;
+        }
+
+        .circle {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .red { background: #ff5f56; }
+        .yellow { background: #ffbd2e; }
+        .green { background: #27c93f; }
+
+        .terminal-body {
+            background: #161b22;
+            padding: 20px;
+            border-radius: 0 0 8px 8px;
+            min-height: 300px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow-y: auto;
+            max-height: 60vh;
+        }
+
+        #terminal-content {
+            white-space: pre-wrap;
+            margin-bottom: 10px;
+        }
+
+        .input-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input {
+            background: transparent;
+            border: none;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            outline: none;
+            width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background: #00ff00;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <div class="terminal-header">
+            <div class="terminal-circles">
+                <div class="circle red"></div>
+                <div class="circle yellow"></div>
+                <div class="circle green"></div>
+            </div>
+        </div>
+        <div class="terminal-body">
+            <div id="terminal-content"></div>
+            <div class="input-line">
+                <span id="prompt">></span>
+                <input type="text" id="user-input" autocomplete="off">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const terminalContent = document.getElementById('terminal-content');
+        const userInput = document.getElementById('user-input');
+        const prompt = document.getElementById('prompt');
+        let currentState = 'initial';
+        let currentHint = 0;
+        
+        document.cookie = "userRole=guest; path=/";
+        
+        const hints = [
+            "1. First, press Option+Command+I (Mac) or Control+Shift+I (Windows) to open Chrome DevTools",
+            "2. In DevTools, click on the 'Application' tab at the top",
+            "3. In the left sidebar of Application tab, find and click on 'Cookies' under Storage",
+            "4. You should see a cookie named 'userRole' with value 'guest'",
+            "5. Double click on the value 'guest' and change it to 'member'",
+            "6. Press Enter to save the cookie change",
+            "7. In the console tab, type login() to verify your new member access",
+            "Success! You've just performed your first cookie manipulation attack!"
+        ];
+        
+        typeText("wanna join BS club? (type 'y' to continue)");
+
+        function typeText(text, callback) {
+            let index = 0;
+            return new Promise((resolve) => {
+                const interval = setInterval(() => {
+                    terminalContent.textContent += text[index];
+                    index++;
+                    if (index >= text.length) {
+                        clearInterval(interval);
+                        if (callback) callback();
+                        resolve();
+                    }
+                }, 50);
+            });
+        }
+
+        async function showNextHint() {
+            if (currentHint < hints.length) {
+                await typeText('\n\n' + hints[currentHint]);
+                currentHint++;
+            }
+        }
+
+        async function simulateSSHSequence() {
+            await typeText('\nEstablishing secure connection...');
+            await new Promise(r => setTimeout(r, 1000));
+            await typeText('\nConnecting to bruin-security.ucla.edu...');
+            await new Promise(r => setTimeout(r, 1500));
+            await typeText('\n\nAuthentication required');
+            await new Promise(r => setTimeout(r, 500));
+            await typeText('\nChecking permissions...');
+            await new Promise(r => setTimeout(r, 500));
+            await typeText('\n\nType \'h\' at any time for help!');
+            
+            setTimeout(() => {
+                console.log(
+                    "%cWelcome to the Bruin Security Challenge!", 
+                    "color: #00ff00; font-size: 16px; font-weight: bold;"
+                );
+                console.log(
+                    "%cSystem Status:", 
+                    "color: #00ff00; font-size: 14px;"
+                );
+                console.log(`
+Current access level: Guest
+Required access level: Member
+> As you can see, our cookies know you're just a guest, see if you can trick it to thinking your a member. Then run login() in the JS console to see if it worked!
+
+Hint: Need help? Type 'h' in the terminal for a step-by-step guide.
+                `);
+            }, 2000);
+        }
+
+        window.login = function() {
+            const cookies = document.cookie.split(';');
+            const roleCookie = cookies.find(cookie => cookie.trim().startsWith('userRole='));
+            const userRole = roleCookie ? roleCookie.split('=')[1] : null;
+            
+            if (userRole === 'member') {
+                console.log(
+                    "%cAccess Granted! 🎉", 
+                    "color: #00ff00; font-size: 16px; font-weight: bold;"
+                );
+                console.log(
+                    "%cWelcome to Bruin Security, new member :)\n\n" +
+                    "Congratulations on completing your first web security exploit!\n\n" +
+                    "What you just learned:\n" +
+                    "• How to use Chrome DevTools to inspect website data\n" +
+                    "• What cookies are and how they store user information\n" +
+                    "• How authentication can be bypassed if it relies only on client-side data\n\n" +
+                    "At Bruin Security, we are interested in building data-driven tools for security.\n" +
+                    "Join us at our weekly meetings - no experience required!\n" +
+                    "Check our Discord for meeting times and location.",
+                    "color: #00ff00; font-size: 14px;"
+                );
+                terminalContent.textContent += '\n\nAccess granted!\nLets build :)\n';
+            } else {
+                console.log("Access denied. Current role:", userRole);
+                console.log("Type 'h' in the terminal if you need help!");
+            }
+        };
+
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const input = this.value.toLowerCase().trim();
+                this.value = '';
+                
+                if (currentState === 'initial' && (input === 'yes' || input === 'y')) {
+                    currentState = 'ssh';
+                    simulateSSHSequence();
+                } else if (input === 'h') {
+                    showNextHint();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
